@@ -95,9 +95,20 @@
 
 (defun publish-static-content ()
   (push (create-static-file-dispatcher-and-handler
-         "/logo.jpg" "static/Commodore64.jpg") *dispatch-table*)
+         "/logo.jpg" "./chat-box/assets/img/logo.jpg") *dispatch-table*)
   (push (create-static-file-dispatcher-and-handler
-         "/retro.css" "static/retro.css") *dispatch-table*))
+	 "/bootstrap.css" "./chat-box/assets/css/bootstrap.css") *dispatch-table*)
+  (push (create-static-file-dispatcher-and-handler
+	 "/font-awesome.css" "./chat-box/assets/css/font-awesome.css") *dispatch-table*)
+    (push (create-static-file-dispatcher-and-handler
+	 "/style.css" "./chat-box/assets/css/style.css") *dispatch-table*)
+    (push (create-static-file-dispatcher-and-handler
+	 "/bootstrap.js" "./chat-box/assets/js/bootstrap.js") *dispatch-table*)
+    (push (create-static-file-dispatcher-and-handler
+	 "/jquery-1.11.1.js" "./chat-box/assets/js/jquery-1.11.1.js") *dispatch-table*))
+   
+           
+
 
 (setf (html-mode) :html5)
 
@@ -112,20 +123,28 @@
     (:html :lang "en"
            (:head
             (:meta :charset "utf-8")
+	    (:meta :name "viewport" :content "width=device-width, initial-scale=1, maximum-scale=1")
             (:title ,title)
             (:link :type "text/css"
                    :rel "stylesheet"
-                   :href "/retro.css")
+                   :href "/bootstrap.css")
+            (:link :type "text/css"
+                   :rel "stylesheet"
+                   :href "/style.css")
+            (:link :type "text/css"
+                   :rel "stylesheet"
+                   :href "/font-awesome.css")
             ,(when script
                `(:script :type "text/javascript"
                          (str ,script))))
            (:body
+	    (:script :src "/bootstrap.js")
+	    (:script :src "/jquery-1.11.1.js")
             (:div :id "header" ; Retro games header
-                  (:img :src "/logo.jpg"
-                        :alt "Commodore 64"
-                        :class "logo")
-                  (:span :class "strapline"
-                         "Dicionário de Variáveis"))
+                  (:img :style "float:right" 
+		   :src "/logo.jpg"
+		   :alt "Lisp Logo"
+		   :class "logo"))
             ,@body))))
 
 (defmacro standard-main-page ((&key title script) &body body)
@@ -150,11 +169,9 @@
            (:body
             (:div :id "header" ; Retro games header
                   (:img :src "/logo.jpg"
-                        :alt "Commodore 64"
-                        :class "logo")
-                  (:span :class "strapline"
-                         "Dicionário de Variáveis"))
-            ,@body))))
+                        :alt ""
+                        :class "logo"))
+                   ,@body))))
 
  (define-easy-handler (loggin :uri "/loggin") ()
   (standard-page (:title "Login")
@@ -181,7 +198,7 @@
 	       (:a :href (format nil "/show-group?name=~a&login=~a" (name groups) login) (format t "~a~%" (name groups))))))))))
 
 
-(define-easy-handler (listmessages :uri "/show-group") (name login)
+(define-easy-handler (show-group :uri "/show-group") (name login)
   (standard-page (:title "Sky App")
      (:h1 "Bem vindo ao SkyApp!")
      (:form :action  "/message-added" :method "get" :id "addform"
@@ -193,13 +210,36 @@
 ;;     (:p "Envie uma mensagem para este grupo" (:a :href (format nil "new-message?login=~a&group=~a" login name) "aqui"))
   (:h2 "Current stand")
   ;;(:meta :http-equiv "refresh" :content "2"
-  (:div :id "chart" ; Used for CSS styling of the links.
-	(:ol
-	 (dolist (mensagens *mensagem-database*)
-	  (if (equal name (destinatario mensagens))
-	      (htm
-	       (format t "~a: ~a" (remetente mensagens) (escopo mensagens) 
-			   (open-time (tempo mensagens))))))))))
+  (:div :class "container" :id "chart" ; Used for CSS styling of the links.
+	(:div :class "row pad-top pad-bottom"
+	      (:div :class " col-lg-6 col-md-6 col-sm-6"
+		    (:div :class "chat-box-div"
+			  (:div :class "chat-box-head"
+				"Histórico da Conversa"
+				(:div :class "btn-group pull-right"
+				      (:button :type "button" :class
+					       :class "btn btn-info dropdown-toggle" 
+					       :data-toggle "dropdown" 
+					       :aria-expanded "false"
+					       (:span :class "fa fa-cogs")
+					       (:span :class "sr-only" "Toggle" "Dropdown"))
+				      (:ul :class "dropdown-menu" :role "menu"
+					   (:li (:a :href "#" (:span :class "fa fa-map-marker") (format t "~a" "Invisible"))))))
+					   
+			  
+		         ;;(:div :class "panel-body chat-box-main"
+			  (:ol
+			   (dolist (mensagens *mensagem-database*)
+			     (if (equal name (destinatario mensagens))
+				 (htm
+				  (:div :class "panel-body chat-box-main"
+					(:div :class "chat-box-left"
+					      (format t "~a" (escopo mensagens)))
+					;;(string (escopo mensagens)))
+					(:div :class "chat-box-name-left"
+					      ;; (:img :src "./chat-box/assets/img/user.png" :alt "bootstrap Chat box user image" :class "img-circle")
+					      (format t "~a" (remetente mensagens))))))))))))))         
+	;;  (open-time (tempo mensagens))))))))
 ;;(standard-page (:title "Envie uma nova mensagem")
     ;;(:h1 "Adicione uma nova mensagem")
 
@@ -232,5 +272,5 @@
   (redirect (format nil "/show-group?name=~a&login=~a" group login))) ; back to the front page
 
 
-
+(publish-static-content)
 (start-server 8080)
