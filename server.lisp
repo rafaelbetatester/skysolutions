@@ -17,7 +17,11 @@
 	     :initarg :password)
    (group-list :accessor group-list
 	       :initarg :group-list
-	       :initform nil)))
+	       :initform nil)
+   (image :reader image
+	  :accessor image
+	  :initarg :image
+	  :initform (concatenate 'string (write-to-string (1+ (random 3))) ".jpeg"))))
 
 (defclass group ()
   ((name :reader name
@@ -105,7 +109,14 @@
     (push (create-static-file-dispatcher-and-handler
 	 "/bootstrap.js" "./chat-box/assets/js/bootstrap.js") *dispatch-table*)
     (push (create-static-file-dispatcher-and-handler
-	 "/jquery-1.11.1.js" "./chat-box/assets/js/jquery-1.11.1.js") *dispatch-table*))
+	 "/jquery-1.11.1.js" "./chat-box/assets/js/jquery-1.11.1.js") *dispatch-table*)
+     (push (create-static-file-dispatcher-and-handler
+	   "/1.jpeg" "./chat-box/assets/img/1.jpeg") *dispatch-table*)
+    (push (create-static-file-dispatcher-and-handler
+	   "/2.jpeg" "./chat-box/assets/img/2.jpeg") *dispatch-table*)
+    (push (create-static-file-dispatcher-and-handler
+	   "/3.jpeg" "./chat-box/assets/img/3.jpeg") *dispatch-table*))
+
    
            
 
@@ -243,16 +254,18 @@
 				       (:span :class "input-group-btn"
 					      (:button :class "btn btn-info" :type "submit" (format t "~a" "SEND")))))))
 	      (:div :class "col-lg-3 col-md-3 col-sm-3"
-		    (:div :class "chat-box-online-div")
-	      <div class="col-lg-3 col-md-3 col-sm-3">
-                <div class="chat-box-online-div">
-                    <div class="chat-box-online-head">
-                        ONLINE USERS (120)
-                    </div>
-                    <div class="panel-body chat-box-online">
-   
-
- 
+		    (:div :class "chat-box-online-div"
+			  (:div :class "chat-box-online-head"
+				(format t "Membros do Grupo (~a)" (length (user-list (group-from-name name)))))
+			  (:ol
+			   (dolist (users (user-list (group-from-name name)))
+			     (htm
+			      (:div :class "panel-body chat-box-online"
+				    (:div :class "chat-box-online-left"
+					  (:img :src (format nil "~a" (image (user-from-login users))) :class "img-circle")
+					 ;; (:br)
+					  (format t " ~a" users))))))))))))
+				
 ;;     (
 ;; (:div :id "chart" ; Used for CSS styling of the links.
     ;; 	(:ol
