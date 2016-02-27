@@ -2,9 +2,10 @@
 /*======================================
     GENERAL STYLES
 ======================================= */
-
 body {
    font-family:Verdana;
+background-color:#EAEDEF;
+
 }
 .pad-top {
     padding-top:30px;
@@ -48,6 +49,14 @@ text-align: center;
     border: 1px solid #C5C5C5;
     font-size:12px;
 }
+
+#scroll-table
+{
+max-height:VH - 50px;
+     
+overflow:auto;
+  width: 100%;
+}	
 .chat-box-left:after {
     top: 100%;
     left: 10%;

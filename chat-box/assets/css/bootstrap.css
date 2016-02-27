@@ -960,8 +960,11 @@ img {
           transition: all .2s ease-in-out;
 }
 .img-circle {
-  border-radius: 50%;
-}
+  border-radius: 15px;
+  width: 30px;
+  height: 30px;
+  -webkit-border-radius: 15px; -moz-border-radius: 15px;	
+ }
 hr {
   margin-top: 20px;
   margin-bottom: 20px;

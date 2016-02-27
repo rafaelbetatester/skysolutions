@@ -1,0 +1,12 @@
+
+function update(){
+ jQuery.ajax("/jquery.ajax",{
+    success: function(data){
+      $("#content").html(data)
+    }
+ })
+}
+
+
+
+setTimeout(update, 1000)
