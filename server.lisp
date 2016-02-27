@@ -21,7 +21,7 @@
    (image :reader image
 	  :accessor image
 	  :initarg :image
-	  :initform (concatenate 'string (write-to-string (1+ (random 3))) ".jpeg"))))
+	  :initform (concatenate 'string (write-to-string (1+ (random 6))) ".jpeg"))))
 
 (defclass group ()
   ((name :reader name
@@ -99,7 +99,7 @@
 
 (defun publish-static-content ()
   (push (create-static-file-dispatcher-and-handler
-         "/logo.jpg" "./chat-box/assets/img/logo.jpg") *dispatch-table*)
+         "/logo.png" "./chat-box/assets/img/logo.png") *dispatch-table*)
   (push (create-static-file-dispatcher-and-handler
 	 "/bootstrap.css" "./chat-box/assets/css/bootstrap.css") *dispatch-table*)
   (push (create-static-file-dispatcher-and-handler
@@ -115,7 +115,19 @@
     (push (create-static-file-dispatcher-and-handler
 	   "/2.jpeg" "./chat-box/assets/img/2.jpeg") *dispatch-table*)
     (push (create-static-file-dispatcher-and-handler
-	   "/3.jpeg" "./chat-box/assets/img/3.jpeg") *dispatch-table*))
+	   "/3.jpeg" "./chat-box/assets/img/3.jpeg") *dispatch-table*)
+    (push (create-static-file-dispatcher-and-handler
+	   "/4.jpeg" "./chat-box/assets/img/4.jpeg") *dispatch-table*)
+    (push (create-static-file-dispatcher-and-handler
+	   "/5.jpeg" "./chat-box/assets/img/5.jpeg") *dispatch-table*)
+    (push (create-static-file-dispatcher-and-handler
+	   "/6.jpeg" "./chat-box/assets/img/6.jpeg") *dispatch-table*)
+    (push (create-static-file-dispatcher-and-handler
+	 "/jquery.js" "./chat-box/assets/js/jquery.js") *dispatch-table*)
+    (push (create-static-file-dispatcher-and-handler
+	 "/refreshing.php" "./chat-box/assets/php/refreshing.php") *dispatch-table*))x
+    
+    
 
    
            
@@ -153,7 +165,7 @@
 	    (:script :src "/jquery-1.11.1.js")
             (:div :id "header" ; Retro games header
                   (:img :style "float:right" 
-		   :src "/logo.jpg"
+		   :src "/logo.png"
 		   :alt "Lisp Logo"
 		   :class "logo"))
             ,@body))))
@@ -179,7 +191,7 @@
                          (str ,script))))
            (:body
             (:div :id "header" ; Retro games header
-                  (:img :src "/logo.jpg"
+                  (:img :src "/logo.png"
                         :alt ""
                         :class "logo"))
                    ,@body))))
@@ -217,10 +229,11 @@
     ; (:p "Envie uma mensagem para este grupo" (:a :href (format nil "new-message?login=~a&group=~a" login name) "aqui"))
   (:h2 (format t "~a" name))
   ;;(:meta :http-equiv "refresh" :content "2"
+  
   (:div :class "container" :id "chart" ; Used for CSS styling of the links.
 	(:div :class "row pad-top pad-bottom"
-	      (:div :class " col-lg-6 col-md-6 col-sm-6"
-		    (:div :class "chat-box-div"
+	      (:div :class " col-lg-6 col-md-6 col-sm-6" 
+		    (:div :class "chat-box-div" 
 			  (:div :class "chat-box-head"
 				"Histórico da Conversa"
 				(:div :class "btn-group pull-right"
@@ -235,36 +248,36 @@
 					   (:li (:a :href "#" (:span :class "fa fa-comments-o") (format t "~a" "&nbsp;Online"))))))
 					  
 		         ;;(:div :class "panel-body chat-box-main"
-			  (:ol
-			   (dolist (mensagens (reverse *mensagem-database*))
-			     (if (equal name (destinatario mensagens))
-				 (htm
-				  ;;(:div :class "panel-body chat-box-main"
-					;;(string (escopo mensagens)))
-					(:div :class "chat-box-name-left"
-					      ;; (:img :src "./chat-box/assets/img/user.png" :alt "bootstrap Chat box user image" :class "img-circle")
-					      (format t "~a: ~a" (remetente mensagens) (escopo mensagens)
-						      (open-time (tempo mensagens)))))))))
-		    (:div :class "chat-box-footer"
-			  (:div :class "input-group"
-				(:form :action   "/message-added" :method "get" :id "addform"
-				       (:input :type "hidden" :name "login" :value login)
-				       (:input :type "hidden" :name "group" :value name)	
-				       (:input :type "text" :class "form-control" :name "escopo" :placeholder "Enter Text Here...")
-				       (:span :class "input-group-btn"
-					      (:button :class "btn btn-info" :type "submit" (format t "~a" "SEND")))))))
-	      (:div :class "col-lg-3 col-md-3 col-sm-3"
-		    (:div :class "chat-box-online-div"
-			  (:div :class "chat-box-online-head"
-				(format t "Membros do Grupo (~a)" (length (user-list (group-from-name name)))))
-			  (:ol
-			   (dolist (users (user-list (group-from-name name)))
-			     (htm
-			      (:div :class "panel-body chat-box-online"
-				    (:div :class "chat-box-online-left"
-					  (:img :src (format nil "~a" (image (user-from-login users))) :class "img-circle")
-					 ;; (:br)
-					  (format t " ~a" users))))))))))))
+				   (:ol :id "scroll-table"
+					(dolist (mensagens (reverse *mensagem-database*))
+					  (if (equal name (destinatario mensagens))
+					      (htm
+					       ;;(:div :class "panel-body chat-box-main"
+					       ;;(string (escopo mensagens)))
+					       (:div :class "chat-box-name-left"
+						     ;; (:img :src "./chat-box/assets/img/user.png" :alt "bootstrap Chat box user image" :class "img-circle")
+						     (format t "~a: ~a" (remetente mensagens) (escopo mensagens)
+							     (open-time (tempo mensagens)))))))))
+			  (:div :class "chat-box-footer"
+				(:div :class "input-group"
+				      (:form :action   "/message-added" :method "get" :id "addform"
+					     (:input :type "hidden" :name "login" :value login)
+					     (:input :type "hidden" :name "group" :value name)	
+					     (:input :type "text" :class "form-control" :name "escopo" :placeholder "Enter Text Here...")
+					     (:span :class "input-group-btn"
+						    (:button :class "btn btn-info" :type "submit" (format t "~a" "SEND")))))))
+		    (:div :class "col-lg-3 col-md-3 col-sm-3"
+			  (:div :class "chat-box-online-div"
+				(:div :class "chat-box-online-head"
+				      (format t "Membros do Grupo (~a)" (length (user-list (group-from-name name)))))
+				(:ol :id "scroll-table"
+				     (dolist (users (user-list (group-from-name name)))
+				       (htm
+					(:div :class "panel-body chat-box-online"
+					      (:div :class "chat-box-online-left"
+						    (:img :src (format nil "~a" (image (user-from-login users))) :class "img-circle")
+						    ;; (:br)
+						    (format t " ~a" users))))))))))))
 				
 ;;     (
 ;; (:div :id "chart" ; Used for CSS styling of the links.
