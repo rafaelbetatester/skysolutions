@@ -125,7 +125,7 @@
     (push (create-static-file-dispatcher-and-handler
 	 "/jquery.js" "./chat-box/assets/js/jquery.js") *dispatch-table*)
     (push (create-static-file-dispatcher-and-handler
-	 "/refreshing.php" "./chat-box/assets/php/refreshing.php") *dispatch-table*))x
+	 "/refreshing.php" "./chat-box/assets/php/refreshing.php") *dispatch-table*))
     
     
 
@@ -258,14 +258,14 @@
 						     ;; (:img :src "./chat-box/assets/img/user.png" :alt "bootstrap Chat box user image" :class "img-circle")
 						     (format t "~a: ~a" (remetente mensagens) (escopo mensagens)
 							     (open-time (tempo mensagens)))))))))
-			  (:div :class "chat-box-footer"
-				(:div :class "input-group"
-				      (:form :action   "/message-added" :method "get" :id "addform"
-					     (:input :type "hidden" :name "login" :value login)
-					     (:input :type "hidden" :name "group" :value name)	
-					     (:input :type "text" :class "form-control" :name "escopo" :placeholder "Enter Text Here...")
-					     (:span :class "input-group-btn"
-						    (:button :class "btn btn-info" :type "submit" (format t "~a" "SEND")))))))
+		    (:div :class "chat-box-footer"
+			  (:div :class "input-group"
+				(:form :action   "/message-added" :method "get" :id "addform"
+				       (:input :type "hidden" :name "login" :value login)
+				       (:input :type "hidden" :name "group" :value name)	
+				       (:input :type "text" :class "form-control" :name "escopo" :placeholder "Enter Text Here...")
+				       (:span :class "input-group-btn"
+					      (:button :class "btn btn-info" :type "submit" (format t "~a" "SEND")))))))
 		    (:div :class "col-lg-3 col-md-3 col-sm-3"
 			  (:div :class "chat-box-online-div"
 				(:div :class "chat-box-online-head"
@@ -277,8 +277,22 @@
 					      (:div :class "chat-box-online-left"
 						    (:img :src (format nil "~a" (image (user-from-login users))) :class "img-circle")
 						    ;; (:br)
-						    (format t " ~a" users))))))))))))
-				
+						    (format t " ~a" users))))))))
+		    
+		    
+		    (:div :class "col-lg-3 col-md-3 col-sm-3"
+			  (:div :class "chat-box-new-div"
+				(:div :class "chat-box-new-head"
+				      (format t "Grupos (~a)" (length (group-list (user-from-login login)))))
+				(:ol :id "scroll-table"
+				     (dolist (groups (group-list (user-from-login login)))
+				       (htm
+					(:div :class "panel-body chat-box-new"
+					      (:a :href (format nil "/show-group?name=~a&login=~a" groups login) (format t "~a" groups))))))))))))
+					
+		
+				       
+				       
 ;;     (
 ;; (:div :id "chart" ; Used for CSS styling of the links.
     ;; 	(:ol
