@@ -189,7 +189,7 @@
   (standard-main-page (:title "Sky App")
      (:h1 "Bem vindo ao SkyApp!")
      ;;(:p "Envie uma mensagem " (:a :href (format nil "new-message?login=~a" login) "aqui"))
-     (:h2 "Current stand")
+     (:h2 "Seus Grupos")
      (:div :id "chart" ; Used for CSS styling of the links.
        (:ol
 	(dolist (groups *group-database*)
@@ -198,17 +198,13 @@
 	       (:a :href (format nil "/show-group?name=~a&login=~a" (name groups) login) (format t "~a~%" (name groups))))))))))
 
 
+
+
 (define-easy-handler (show-group :uri "/show-group") (name login)
   (standard-page (:title "Sky App")
      (:h1 "Bem vindo ao SkyApp!")
-     (:form :action  "/message-added" :method "get" :id "addform"
-	    (:input :type "text" :name "login" :value login)
-	    (:input :type "text" :name "group" :value name)
-	    (:p "Mensagem" (:br)
-		(:input :type "text" :name "escopo" :class "txt"))
-	    (:p (:input :type "submit" :value "Add" :class "btn")))
-;;     (:p "Envie uma mensagem para este grupo" (:a :href (format nil "new-message?login=~a&group=~a" login name) "aqui"))
-  (:h2 "Current stand")
+    ; (:p "Envie uma mensagem para este grupo" (:a :href (format nil "new-message?login=~a&group=~a" login name) "aqui"))
+  (:h2 (format t "~a" name))
   ;;(:meta :http-equiv "refresh" :content "2"
   (:div :class "container" :id "chart" ; Used for CSS styling of the links.
 	(:div :class "row pad-top pad-bottom"
@@ -217,29 +213,55 @@
 			  (:div :class "chat-box-head"
 				"Histórico da Conversa"
 				(:div :class "btn-group pull-right"
-				      (:button :type "button" :class
+				      (:button :type "button"
 					       :class "btn btn-info dropdown-toggle" 
 					       :data-toggle "dropdown" 
 					       :aria-expanded "false"
 					       (:span :class "fa fa-cogs")
-					       (:span :class "sr-only" "Toggle" "Dropdown"))
+					       (:span :class "sr-only" "Toggle " "Dropdown"))
 				      (:ul :class "dropdown-menu" :role "menu"
-					   (:li (:a :href "#" (:span :class "fa fa-map-marker") (format t "~a" "Invisible"))))))
-					   
-			  
+					   (:li (:a :href "#" (:span :class "fa fa-map-marker") (format t "~a" "&nbsp;Invisible")))
+					   (:li (:a :href "#" (:span :class "fa fa-comments-o") (format t "~a" "&nbsp;Online"))))))
+					  
 		         ;;(:div :class "panel-body chat-box-main"
 			  (:ol
-			   (dolist (mensagens *mensagem-database*)
+			   (dolist (mensagens (reverse *mensagem-database*))
 			     (if (equal name (destinatario mensagens))
 				 (htm
-				  (:div :class "panel-body chat-box-main"
-					(:div :class "chat-box-left"
-					      (format t "~a" (escopo mensagens)))
+				  ;;(:div :class "panel-body chat-box-main"
 					;;(string (escopo mensagens)))
 					(:div :class "chat-box-name-left"
 					      ;; (:img :src "./chat-box/assets/img/user.png" :alt "bootstrap Chat box user image" :class "img-circle")
-					      (format t "~a" (remetente mensagens))))))))))))))         
-	;;  (open-time (tempo mensagens))))))))
+					      (format t "~a: ~a" (remetente mensagens) (escopo mensagens)
+						      (open-time (tempo mensagens)))))))))
+		    (:div :class "chat-box-footer"
+			  (:div :class "input-group"
+				(:form :action   "/message-added" :method "get" :id "addform"
+				       (:input :type "hidden" :name "login" :value login)
+				       (:input :type "hidden" :name "group" :value name)	
+				       (:input :type "text" :class "form-control" :name "escopo" :placeholder "Enter Text Here...")
+				       (:span :class "input-group-btn"
+					      (:button :class "btn btn-info" :type "submit" (format t "~a" "SEND")))))))
+	      (:div :class "col-lg-3 col-md-3 col-sm-3"
+		    (:div :class "chat-box-online-div")
+	      <div class="col-lg-3 col-md-3 col-sm-3">
+                <div class="chat-box-online-div">
+                    <div class="chat-box-online-head">
+                        ONLINE USERS (120)
+                    </div>
+                    <div class="panel-body chat-box-online">
+   
+
+ 
+;;     (
+;; (:div :id "chart" ; Used for CSS styling of the links.
+    ;; 	(:ol
+    ;; 	 (dolist (groups *group-database*)
+    ;; 	   (if (member (string login) (user-list groups) :test #'string-equal)
+    ;; 	       (htm
+    ;; 		(:a :href (format nil "/show-group?name=~a&login=~a" (name groups) login) (format t "~a~%" (name groups))))))))))
+
+	
 ;;(standard-page (:title "Envie uma nova mensagem")
     ;;(:h1 "Adicione uma nova mensagem")
 
