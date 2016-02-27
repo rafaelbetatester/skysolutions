@@ -10,12 +10,21 @@
 
 (in-package :server)
 
-
 (defclass user ()
   ((login :reader login
 	  :initarg :login)
    (password :reader password
-	     :initarg :password)))
+	     :initarg :password)
+   (group-list :accessor group-list
+	       :initarg :group-list
+	       :initform nil)))
+
+(defclass group ()
+  ((name :reader name
+	 :initarg :name)
+   (user-list :accessor user-list
+	      :initarg :user-list
+	      :initform nil)))
 
 (defclass mensagem()
   ((escopo :reader escopo
@@ -36,6 +45,7 @@
 
 (defvar *user-database* '())
 (defvar *mensagem-database* '())
+(defvar *group-database* '())
 
 (defun user-from-login (login)
   (find login *user-database* :test #'string-equal :key #'login))
@@ -45,6 +55,24 @@
 		       :login login
 		       :password password) *user-database*))
 
+(defun add-group (login name)
+  (push (make-instance 'group
+		       :name name
+		       :user-list (list login)) *group-database*)
+  (let*((alist (group-list (user-from-login login))))
+    (setf (group-list (user-from-login login)) (append alist (list name)))))
+  
+
+(defun group-from-name (name)
+  (find name *group-database* :test #'string-equal :key #'name))
+
+(defun add-user-to-group (login name)
+  (let*((alist (user-list (group-from-name name))))
+    (setf (user-list (group-from-name name)) (append alist (list login))))
+  (let*((alist (group-list (user-from-login login))))
+    (setf (group-list (user-from-login login)) (append alist (list name)))))
+  
+    
 (defun mensagem-from-id (id)
   (find id *mensagem-database* :test #'string-equal :key  #'id))
 
@@ -60,7 +88,7 @@
 (defun open-time (tempo)
    (multiple-value-bind (second minute hour)
        (decode-universal-time tempo)
-     (format t "A mensagem foi enviada às ~2,'0D:~2,'0D" hour minute)))
+     (format t "(~2,'0D:~2,'0D) " hour minute)))
 
 (defun start-server (port)
   (start (make-instance 'easy-acceptor :port port)))
@@ -140,42 +168,68 @@
 
 
 
-(define-easy-handler (listmessages :uri "/listmessages") (login)
+(define-easy-handler (listgroups :uri "/listgroups") (login)
   (standard-main-page (:title "Sky App")
      (:h1 "Bem vindo ao SkyApp!")
-     (:p "Envie uma mensagem " (:a :href (format nil "new-message?login=~a" login) "aqui"))
+     ;;(:p "Envie uma mensagem " (:a :href (format nil "new-message?login=~a" login) "aqui"))
      (:h2 "Current stand")
      (:div :id "chart" ; Used for CSS styling of the links.
        (:ol
-	(dolist (mensagens *mensagem-database*)
-	  (if (equal login (destinatario mensagens))
+	(dolist (groups *group-database*)
+	  (if (member (string login) (user-list groups) :test #'string-equal)
 	      (htm
-	       (:li (format t "~a de ~a - " (escopo mensagens) 
-			    (remetente mensagens)(open-time (tempo mensagens)))))))))))
+	       (:a :href (format nil "/show-group?name=~a&login=~a" (name groups) login) (format t "~a~%" (name groups))))))))))
 
-(define-easy-handler (new-message :uri "/new-message") (login)
-  (standard-page (:title "Envie uma nova mensagem")
-    (:h1 "Adicione uma nova mensagem")
-    (:form :action  "/message-added" :method "get" :id "addform"
-	   (:input :type "text" :name "login" :value login)
-	   (:p "Mensagem" (:br)
-	       (:input :type "text" :name "escopo" :class "txt"))
-	   (:p "Destinatário" (:br)
-	       (:input :type "text" :name "destinatario" :class "txt"))
-	   (:p (:input :type "submit" :value "Add" :class "btn")))))
 
+(define-easy-handler (listmessages :uri "/show-group") (name login)
+  (standard-page (:title "Sky App")
+     (:h1 "Bem vindo ao SkyApp!")
+     (:form :action  "/message-added" :method "get" :id "addform"
+	    (:input :type "text" :name "login" :value login)
+	    (:input :type "text" :name "group" :value name)
+	    (:p "Mensagem" (:br)
+		(:input :type "text" :name "escopo" :class "txt"))
+	    (:p (:input :type "submit" :value "Add" :class "btn")))
+;;     (:p "Envie uma mensagem para este grupo" (:a :href (format nil "new-message?login=~a&group=~a" login name) "aqui"))
+  (:h2 "Current stand")
+  ;;(:meta :http-equiv "refresh" :content "2"
+  (:div :id "chart" ; Used for CSS styling of the links.
+	(:ol
+	 (dolist (mensagens *mensagem-database*)
+	  (if (equal name (destinatario mensagens))
+	      (htm
+	       (format t "~a: ~a" (remetente mensagens) (escopo mensagens) 
+			   (open-time (tempo mensagens))))))))))
+;;(standard-page (:title "Envie uma nova mensagem")
+    ;;(:h1 "Adicione uma nova mensagem")
+
+
+;; (define-easy-handler (listmessages :uri "/listmessages") (login)
+;;   (standard-main-page (:title "Sky App")
+;;      (:h1 "Bem vindo ao SkyApp!")
+;;      (:p "Envie uma mensagem " (:a :href (format nil "new-message?login=~a" login) "aqui"))
+;;      (:h2 "Current stand")
+;;      (:div :id "chart" ; Used for CSS styling of the links.
+;;        (:ol
+;; 	(dolist (mensagens *mensagem-database*)
+;; 	  (if (equal login (destinatario mensagens))
+;; 	      (htm
+;; 	       (format t "~a: ~a" (remetente mensagens) (escopo mensagens) 
+;; 			   (open-time (tempo mensagens))))))))))
+
+  
 (define-easy-handler (login-inserted :uri "/login-inserted") (login password)
   (let*((usuario (user-from-login login)))
     (if (or (null usuario) (not (equal password (password usuario))))
 	(redirect "/loggin")
-	(redirect (format nil "/listmessages?login=~a" login)))))
+	(redirect (format nil "/listgroups?login=~a" login)))))
 
 
-(define-easy-handler (message-added :uri "/message-added") (login escopo destinatario)
+(define-easy-handler (message-added :uri "/message-added") (login group escopo)
  ;; (unless (or (null name) (zerop (length name))) ; In case JavaScript is turned off.
   ;;print login))
-  (add-mensagem escopo login destinatario)
-  (redirect (format nil "/listmessages?login=~a" login))) ; back to the front page
+  (add-mensagem escopo login group)
+  (redirect (format nil "/show-group?name=~a&login=~a" group login))) ; back to the front page
 
 
 
