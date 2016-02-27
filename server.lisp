@@ -24,6 +24,8 @@
 	      :initarg :remetente)
     (destinatario :reader destinatario
 		  :initarg :destinatario)
+   (time :accessor tempo
+	 :initform (get-universal-time))
    (id :accessor id
        :initform (gensym))))
   
@@ -54,6 +56,11 @@
     (push nova-mensagem *mensagem-database*)))
 ;;    (publish-mensagem nova-mensagem)))
 
+
+(defun open-time (tempo)
+   (multiple-value-bind (second minute hour)
+       (decode-universal-time tempo)
+     (format t "A mensagem foi enviada às ~2,'0D:~2,'0D" hour minute)))
 
 (defun start-server (port)
   (start (make-instance 'easy-acceptor :port port)))
@@ -93,6 +100,33 @@
                          "Dicionário de Variáveis"))
             ,@body))))
 
+(defmacro standard-main-page ((&key title script) &body body)
+  "All pages on the Retro Games site will use the following macro; 
+   less to type and a uniform look of the pages (defines the header
+   and the stylesheet).
+   The macro also accepts an optional script argument. When present, the
+   script form is expected to expand into valid JavaScript."
+  `(with-html-output-to-string
+    (*standard-output* nil :prologue t :indent t)
+    (:html :lang "en"
+           (:head
+            (:meta :charset "utf-8")
+            (:meta :http-equiv "refresh" :content "2")
+	    (:title ,title)
+            (:link :type "text/css"
+                   :rel "stylesheet"
+                   :href "/retro.css")
+            ,(when script
+               `(:script :type "text/javascript"
+                         (str ,script))))
+           (:body
+            (:div :id "header" ; Retro games header
+                  (:img :src "/logo.jpg"
+                        :alt "Commodore 64"
+                        :class "logo")
+                  (:span :class "strapline"
+                         "Dicionário de Variáveis"))
+            ,@body))))
 
  (define-easy-handler (loggin :uri "/loggin") ()
   (standard-page (:title "Login")
@@ -103,11 +137,12 @@
 	   (:p "Senha" (:br)
 	       (:input :type "text" :name "password" :class "txt"))
 	   (:p (:input :type "submit" :value "Entrar" :class "btn")))))
-     
+
+
 
 (define-easy-handler (listmessages :uri "/listmessages") (login)
-  (standard-page (:title "Sky App")
-     (:h1 "Defina as Variáveis do Problema!")
+  (standard-main-page (:title "Sky App")
+     (:h1 "Bem vindo ao SkyApp!")
      (:p "Envie uma mensagem " (:a :href (format nil "new-message?login=~a" login) "aqui"))
      (:h2 "Current stand")
      (:div :id "chart" ; Used for CSS styling of the links.
@@ -115,8 +150,8 @@
 	(dolist (mensagens *mensagem-database*)
 	  (if (equal login (destinatario mensagens))
 	      (htm
-	       (:li (format t "~a from ~a to ~a" (escopo mensagens) 
-			    (remetente mensagens) (destinatario mensagens))))))))))
+	       (:li (format t "~a de ~a - " (escopo mensagens) 
+			    (remetente mensagens)(open-time (tempo mensagens)))))))))))
 
 (define-easy-handler (new-message :uri "/new-message") (login)
   (standard-page (:title "Envie uma nova mensagem")
