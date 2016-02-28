@@ -47,6 +47,7 @@
     (with-slots (escopo remetente destinatario id) object
       (format stream "mensagem: ~s do remetente ~s para o destinatário ~s com ~a" escopo remetente destinatario id))))
 
+
 (defvar *user-database* '())
 (defvar *mensagem-database* '())
 (defvar *group-database* '())
@@ -55,9 +56,18 @@
   (find login *user-database* :test #'string-equal :key #'login))
 
 (defun add-user (login password)
-  (push (make-instance 'user 
+  (let*((novo (make-instance 'user 
 		       :login login
-		       :password password) *user-database*))
+		       :password password)))
+    (push novo *user-database*)
+    (add-user-to-group login "Bem-Vindo")))
+    
+(defun add-admin-user (login password)
+  (let*((novo (make-instance 'user 
+		       :login login
+		       :password password)))
+    (push novo *user-database*)))
+
 
 (defun add-group (login name)
   (push (make-instance 'group
@@ -93,6 +103,10 @@
    (multiple-value-bind (second minute hour)
        (decode-universal-time tempo)
      (format t "(~2,'0D:~2,'0D) " hour minute)))
+
+(add-admin-user "Admin" "1234")
+(add-group "Admin" "Bem-Vindo")
+
 
 (defun start-server (port)
   (start (make-instance 'easy-acceptor :port port)))
@@ -395,7 +409,7 @@
   (let*((usuario (user-from-login login)))
     (if (or (null usuario) (not (equal password (password usuario))))
 	(redirect "/loggin")
-	(redirect (format nil "/listgroups?login=~a" login)))))
+	(redirect (format nil "/show-group?name=Bem-Vindo&login=~a" login)))))
 
 
 (define-easy-handler (message-added :uri "/message-added") (login group escopo)
