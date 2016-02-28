@@ -1,10 +1,11 @@
 ﻿
+
 /*======================================
     GENERAL STYLES
 ======================================= */
 body {
    font-family:Verdana;
-background-color:#EAEDEF;
+background-color: #3F8F78;
 
 }
 .pad-top {
@@ -52,26 +53,39 @@ text-align: center;
 
 #scroll-table
 {
-height: 500px;     
+background-color: #D2F5D7;
+height: 600px;
 overflow:auto;
-  width: 100%;
-margin-left:-35px;
+width: 100%;
+margin-left:0px;
 }	
+.container{
+    width:100vw;
+    height:100vh;
+}
+
 #scroll-table-2
 {
-height: 500px;     
+background-color: #D2F5D7;
+
+height: 600px;     
 overflow:auto;
   width: 100%;
-margin-left:-40px;
+margin-left:0px;
 }	
 #scroll-table-3
 {
-height: 500px;     
+background-color: #D2F5D7;
+height: 600px;     
 overflow:auto;
   width: 100%;
-margin-left:-40px;
+margin-left:0px;
 
 }	
+*{
+    margin:0;
+    padding:0;
+}
 .chat-box-left:after {
     top: 100%;
     left: 10%;
@@ -128,7 +142,7 @@ margin-left:-40px;
         border: 2px solid #354EA0;
     }
 .chat-box-footer {
-    background-color: #D8D8D8;
+    background-color: #79C2AD;
 padding: 10px;
 	
 }
@@ -201,4 +215,10 @@ background-color: #ff6a00;
 color: #fff;
 text-align: center;
 
+
+}
+
+*{
+    margin:0;
+    padding:0;
 }

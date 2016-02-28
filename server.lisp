@@ -175,21 +175,22 @@
                    :href "/bootstrap.css")
             (:link :type "text/css"
                    :rel "stylesheet"
-                   :href "/style.css")
-            (:link :type "text/css"
-                   :rel "stylesheet"
                    :href "/font-awesome.css")
+           
+	    (:link :type "text/css"
+                   :rel "stylesheet"
+                   :href "/style.css")
             ,(when script
                `(:script :type "text/javascript"
                          (str ,script))))
            (:body
 	    (:script :src "/jquery-1.11.1.js")
             (:script :src "/bootstrap.js")
-	    (:div :id "header" ; Retro games header
-                  (:img :style "float:right" 
-		   :src "/logo.png"
-		   :alt "Lisp Logo"
-		   :class "logo"))
+	   ;; (:div :id "header" ; Retro games header
+              ;;    (:img :style "float:right" 
+	;;	   :src "/logo.png"
+		;;   :alt "Lisp Logo"
+		;;   :class "logo"))
             ,@body))))
 (defmacro standard-refresh ((&key title script) &body body)
   "All pages on the Retro Games site will use the following macro; 
@@ -201,23 +202,23 @@
     (*standard-output* nil :prologue t :indent t)
     (:html :lang "en"
            (:head
-            (:meta :charset "utf-8")
+        ;;    (:meta :charset "utf-8")
 	   ;; (:meta :name "viewport" :content "width=device-width, initial-scale=1, maximum-scale=1")
-            (:title ,title)
+         ;;   (:title ,title)
            ;; (:link :type "text/css"
                   ; :rel "stylesheet"
                   ; :href "/style.css")
             ;;(:link :type "text/css"
               ;;     :rel "stylesheet"
                 ;;   :href "/font-awesome.css")
-            ,(when script
-               `(:script :type "text/javascript"
-                         (str ,script))))
-           (:body
-	    (:script :src "/bootstrap.js")
-	    (:script :src "/jquery-1.11.1.js")
-            (:div :id "header" ; Retro games header
-                 )
+          ;;  ,(when script
+           ;;    `(:script :type "text/javascript"
+            ;;             (str ,script))))
+          ;; (:body
+	  ;;  (:script :src "/bootstrap.js")
+	   ;; (:script :src "/jquery-1.11.1.js")
+           ; (:div :id "header" ; Retro games header
+            ;;     )
             ,@body))))
 
 (defmacro standard-main-page ((&key title script) &body body)
@@ -254,7 +255,7 @@
 	       (:input :type "text" :name "login" :class "txt"))
 	   (:p "Senha" (:br)
 	       (:input :type "password" :name "password" :class "txt"))
-	   (:p (:input :type "submit" :value "Entrar" :class "btn")))))
+	   (:p (:input   :type "submit" :value "Entrar" :class "btn")))))
 
  (define-easy-handler (login-admin :uri "/login-admin") ()
   (standard-page (:title "Login")
@@ -270,9 +271,9 @@
 
 (define-easy-handler (listgroups :uri "/listgroups") (login)
   (standard-main-page (:title "Sky App")
-     (:h1 "Bem vindo ao SkyApp!")
+     ;(:h1 "Bem vindo ao SkyApp!")
      ;;(:p "Envie uma mensagem " (:a :href (format nil "new-message?login=~a" login) "aqui"))
-     (:h2 "Seus Projetos")
+     ;(:h2 "Seus Projetos")
      (:div :id "chart" ; Used for CSS styling of the links.
        (:ol
 	(dolist (groups *group-database*)
@@ -285,9 +286,9 @@
 
 (define-easy-handler (show-group :uri "/show-group") (name login)
   (standard-page (:title "Sky App")
-     (:h1 "Bem vindo ao SkyApp!")
+     ;(:h1 "Bem vindo ao SkyApp!")
     ; (:p "Envie uma mensagem para este grupo" (:a :href (format nil "new-message?login=~a&group=~a" login name) "aqui"))
-  (:h2 (format t "~a" name))
+ ; (:h2 (format t "~a" name))
   ;;(:meta :http-equiv "refresh" :content "2"
   
   (:div :class "container" :id "chart" ; Used for CSS styling of the links.
@@ -295,31 +296,45 @@
 	      (:div :class " col-lg-6 col-md-6 col-sm-6" 
 		    (:div :class "chat-box-div" 
 			  (:div :class "chat-box-head"
-				"Histórico da Conversa")
-			  (:script (format t " $(document).ready(function(){
+				(format t "~a" name))
+	 		  (:script (format t "
+ $(document).ready(function(){
+$('*').css('margin','0');
+$('*').css('padding','0');
       $(\"#scroll-table\").load(\"/refresh?name=~a&login=~a\");
       setInterval(function(){
         $(\"#scroll-table\").load(\"/refresh?name=~a&login=~a\");
       }, 1000);
-    });"name login name login))
+    });
+function sendMessage(){
+   jQuery.ajax('/message-added?login=~a&group=~a&escopo='+$(\"#mensagem\").val(),{
+      success: function(data){
+         update();
+      }
+   });
+   $(\"#mensagem\").val('');
+   $('#scroll-table').scrollTop(324234234);
+   return false; 
+}
+"name login name login login name))
 			  (:ol :id "scroll-table" 
-					(dolist (mensagens (reverse *mensagem-database*))
-					  (if (equal name (destinatario mensagens))
-					      (htm
-					       ;;(:div :class "panel-body chat-box-main"
-					       ;;(string (escopo mensagens)))
-					       (:div :class "chat-box-name-left"
-						     ;; (:img :src "./chat-box/assets/img/user.png" :alt "bootstrap Chat box user image" :class "img-circle")
+			       (dolist (mensagens (reverse *mensagem-database*))
+				 (if (equal name (destinatario mensagens))
+				     (htm
+				      ;;(:div :class "panel-body chat-box-main"
+				      ;;(string (escopo mensagens)))
+				      (:div :class "chat-box-name-left"
+					    ;; (:img :src "./chat-box/assets/img/user.png" :alt "bootstrap Chat box user image" :class "img-circle")
 						     (format t "~a: ~a" (remetente mensagens) (escopo mensagens)
 							     (open-time (tempo mensagens)))))))))
 		    (:div :class "chat-box-footer"
 			  (:div :class "input-group"
-				(:form :action   "/message-added" :method "get" :id "addform"
+				(:form :style "width:100%"  :onsubmit "return sendMessage()" :id "addform"
 				       (:input :type "hidden" :name "login" :value login)
 				       (:input :type "hidden" :name "group" :value name)	
-				       (:input :type "text" :class "form-control" :name "escopo" :placeholder "Digite sua mensagem...")
+				       (:input :style "width:100%" :id  "mensagem" :type "text" :class "form-control" :name "escopo" :placeholder "Digite sua mensagem...")
 				       (:span :class "input-group-btn"
-					      (:button :class "btn btn-info" :type "submit" (format t "~a" "Enviar")))))))
+					      (:button :class "btn btn-default"  :type "submit" (format t "~a" "Enviar")))))))
 		    (:div :class "col-lg-3 col-md-3 col-sm-3"
 			  (:div :class "chat-box-online-div"
 				(:div :class "chat-box-online-head"
@@ -347,7 +362,7 @@
 				       (:input :type "hidden" :name "group" :value name)	
 				       (:input :type "text" :class "form-control" :name "novo" :placeholder "Novo Contato...")
 				       (:span :class "input-group-btn"
-					      (:button :class "btn btn-info" :type "submit" (format t "~a" "Adicionar")))))))
+					      (:button :class "btn btn-default" :type "submit" (format t "~a" "Adicionar")))))))
 		    
 		    (:div :class "col-lg-3 col-md-3 col-sm-3"
 			  (:div :class "chat-box-new-div"
@@ -373,13 +388,13 @@
 				       ;(:input :type "hidden" :name "group" :value name)	
 				       (:input :type "text" :class "form-control" :name "novo" :placeholder "Novo Projeto...")
 				       (:span :class "input-group-btn"
-					      (:button :class "btn btn-info" :type "submit" (format t "~a" "Criar")))))))))))
+					      (:button :class "btn btn-default" :type "submit" (format t "~a" "Criar")))))))))))
 		    
 					
 		
 
 (define-easy-handler (refresh :uri "/refresh") (name login)
-  (standard-refresh (:title "SkyApp") (:ol :id "scroll-table" 
+  (standard-refresh (:title "SkyApp")  
 					   (dolist (mensagens (reverse *mensagem-database*))
 	 (if (equal name (destinatario mensagens))
 	     (htm
@@ -388,7 +403,7 @@
 	      (:div :class "chat-box-name-left"
 		    ;; (:img :src "./chat-box/assets/img/user.png" :alt "bootstrap Chat box user image" :class "img-circle")
 		    (format t "~a: ~a" (remetente mensagens) (escopo mensagens)
-			    (open-time (tempo mensagens))))))))))
+			    (open-time (tempo mensagens)))))))))
 				
 (define-easy-handler (refresh-group :uri "/refresh-group") (name login)
   (standard-refresh (:title "SkyApp") (:ol :id "scroll-table-2" 
@@ -448,12 +463,12 @@
 (define-easy-handler (admin :uri "/admin") ()
   (standard-page (:title "Admin")
   (:h1 "Entre com Login e Senha do novo Usuario!")
-  (:form :action "/user-inserted" :method "get" :id "addform"
+  (:form :style "width:100%"  :action "/user-inserted" :method "get" :id "addform"
 	 (:p "Login" (:br)
 	     (:input :type "text" :name "login" :class "txt"))
 	 (:p "Senha" (:br)
 	     (:input :type "password" :name "password" :class "txt"))
-	 (:p (:input :type "submit" :value "Criar" :class "btn")))))
+	 (:p (:input :style "width:100%" :type "submit" :value "Criar" :class "btn")))))
 
 
 (define-easy-handler (user-inserted :uri "/user-inserted") (login password)
@@ -467,8 +482,8 @@
 (define-easy-handler (message-added :uri "/message-added") (login group escopo)
  ;; (unless (or (null name) (zerop (length name))) ; In case JavaScript is turned off.
   ;;print login))
-  (add-mensagem escopo login group)
-  (redirect (format nil "/show-group?name=~a&login=~a" group login))) ; back to the front page
+  (add-mensagem escopo login group))
+;;  (redirect (format nil "/show-group?name=~a&login=~a" group login))) ; back to the front page
 
 (define-easy-handler (contact-added :uri "/contact-added") (login group novo)
   (unless (or (null novo) (zerop (length novo))(member novo (user-list (group-from-name group))) ; In case JavaScript is turned off.
