@@ -21,7 +21,7 @@
    (image :reader image
 	  :accessor image
 	  :initarg :image
-	  :initform (concatenate 'string (write-to-string (1+ (random 6))) ".jpeg"))))
+	  :initform (concatenate 'string (write-to-string (1+ (random 10))) ".jpeg"))))
 
 (defclass group ()
   ((name :reader name
@@ -122,6 +122,14 @@
 	   "/5.jpeg" "./chat-box/assets/img/5.jpeg") *dispatch-table*)
     (push (create-static-file-dispatcher-and-handler
 	   "/6.jpeg" "./chat-box/assets/img/6.jpeg") *dispatch-table*)
+    (push (create-static-file-dispatcher-and-handler
+	   "/7.jpeg" "./chat-box/assets/img/7.jpeg") *dispatch-table*)
+    (push (create-static-file-dispatcher-and-handler
+	   "/8.jpeg" "./chat-box/assets/img/8.jpeg") *dispatch-table*)
+    (push (create-static-file-dispatcher-and-handler
+	   "/9.jpeg" "./chat-box/assets/img/9.jpeg") *dispatch-table*)
+        (push (create-static-file-dispatcher-and-handler
+	   "/10.jpeg" "./chat-box/assets/img/10.jpeg") *dispatch-table*)
     (push (create-static-file-dispatcher-and-handler
 	 "/jquery.js" "./chat-box/assets/js/jquery.js") *dispatch-table*)
     (push (create-static-file-dispatcher-and-handler
@@ -363,4 +371,4 @@
 
 
 (publish-static-content)
-(start-server 8080)
+(start-server 8081)
