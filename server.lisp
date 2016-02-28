@@ -249,14 +249,24 @@
                         :class "logo"))
                    ,@body))))
 
- (define-easy-handler (loggin :uri "/loggin") ()
+ (define-easy-handler (loggin :uri "/login") ()
   (standard-page (:title "Login")
 		 (:h1 "Entre com Login e Senha!")
     (:form :action "/login-inserted" :method "get" :id "addform"
 	   (:p "Login" (:br)
 	       (:input :type "text" :name "login" :class "txt"))
 	   (:p "Senha" (:br)
-	       (:input :type "text" :name "password" :class "txt"))
+	       (:input :type "password" :name "password" :class "txt"))
+	   (:p (:input :type "submit" :value "Entrar" :class "btn")))))
+
+ (define-easy-handler (login-admin :uri "/login-admin") ()
+  (standard-page (:title "Login")
+		 (:h1 "Entre com Login e Senha!")
+    (:form :action "/login-admin-inserted" :method "get" :id "addform"
+	   (:p "Login" (:br)
+	       (:input :type "text" :name "login" :class "txt"))
+	   (:p "Senha" (:br)
+	       (:input :type "password" :name "password" :class "txt"))
 	   (:p (:input :type "submit" :value "Entrar" :class "btn")))))
 
 
@@ -265,7 +275,7 @@
   (standard-main-page (:title "Sky App")
      (:h1 "Bem vindo ao SkyApp!")
      ;;(:p "Envie uma mensagem " (:a :href (format nil "new-message?login=~a" login) "aqui"))
-     (:h2 "Seus Grupos")
+     (:h2 "Seus Projetos")
      (:div :id "chart" ; Used for CSS styling of the links.
        (:ol
 	(dolist (groups *group-database*)
@@ -288,17 +298,7 @@
 	      (:div :class " col-lg-6 col-md-6 col-sm-6" 
 		    (:div :class "chat-box-div" 
 			  (:div :class "chat-box-head"
-				"Histórico da Conversa"
-				(:div :class "btn-group pull-right"
-				      (:button :type "button"
-					       :class "btn btn-info dropdown-toggle" 
-					       :data-toggle "dropdown" 
-					       :aria-expanded "false"
-					       (:span :class "fa fa-cogs")
-					       (:span :class "sr-only" "Toggle " "Dropdown"))
-				      (:ul :class "dropdown-menu" :role "menu"
-					   (:li (:a :href "#" (:span :class "fa fa-map-marker") (format t "~a" "&nbsp;Invisible")))
-					   (:li (:a :href "#" (:span :class "fa fa-comments-o") (format t "~a" "&nbsp;Online"))))))
+				"Histórico da Conversa")
 			  (:script (format t " $(document).ready(function(){
       $(\"#scroll-table\").load(\"/refresh?name=~a&login=~a\");
       setInterval(function(){
@@ -327,7 +327,7 @@
 		    (:div :class "col-lg-3 col-md-3 col-sm-3"
 			  (:div :class "chat-box-online-div"
 				(:div :class "chat-box-online-head"
-				      (format t "Membros do Grupo (~a)" (length (user-list (group-from-name name)))))
+				      (format t "Membros do Projeto (~a)" (length (user-list (group-from-name name)))))
 				(:ol :id "scroll-table"
 				     (dolist (users (user-list (group-from-name name)))
 				       (htm
@@ -348,7 +348,7 @@
 		    (:div :class "col-lg-3 col-md-3 col-sm-3"
 			  (:div :class "chat-box-new-div"
 				(:div :class "chat-box-new-head"
-				      (format t "Grupos (~a)" (length (group-list (user-from-login login)))))
+				      (format t "Projetos (~a)" (length (group-list (user-from-login login)))))
 				(:ol :id "scroll-table"
 				     (dolist (groups (group-list (user-from-login login)))
 				       (htm
@@ -359,7 +359,7 @@
 				(:form :action   "/group-added" :method "get" :id "addform"
 				       (:input :type "hidden" :name "login" :value login)
 				       ;(:input :type "hidden" :name "group" :value name)	
-				       (:input :type "text" :class "form-control" :name "novo" :placeholder "Novo Grupo...")
+				       (:input :type "text" :class "form-control" :name "novo" :placeholder "Novo Projeto...")
 				       (:span :class "input-group-btn"
 					      (:button :class "btn btn-info" :type "submit" (format t "~a" "Criar")))))))))))
 		    
@@ -408,8 +408,32 @@
 (define-easy-handler (login-inserted :uri "/login-inserted") (login password)
   (let*((usuario (user-from-login login)))
     (if (or (null usuario) (not (equal password (password usuario))))
-	(redirect "/loggin")
+	(redirect "/login")
 	(redirect (format nil "/show-group?name=Bem-Vindo&login=~a" login)))))
+
+(define-easy-handler (login-admin-inserted :uri "/login-admin-inserted") (login password)
+  (let*((usuario (user-from-login login)))
+    (if (or (null usuario) (not (equal password (password usuario))))
+	(redirect "/login-admin")
+	(redirect  "/admin"))))
+
+(define-easy-handler (admin :uri "/admin") ()
+  (standard-page (:title "Admin")
+  (:h1 "Entre com Login e Senha do novo Usuario!")
+  (:form :action "/user-inserted" :method "get" :id "addform"
+	 (:p "Login" (:br)
+	     (:input :type "text" :name "login" :class "txt"))
+	 (:p "Senha" (:br)
+	     (:input :type "password" :name "password" :class "txt"))
+	 (:p (:input :type "submit" :value "Criar" :class "btn")))))
+
+
+(define-easy-handler (user-inserted :uri "/user-inserted") (login password)
+ ;; (unless (or (null name) (zerop (length name))) ; In case JavaScript is turned off.
+  ;;print login))
+  (add-user login password)
+  (redirect (format nil "/admin"))) ; back to the front page
+
 
 
 (define-easy-handler (message-added :uri "/message-added") (login group escopo)
