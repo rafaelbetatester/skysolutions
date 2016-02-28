@@ -263,9 +263,9 @@
 				(:form :action   "/message-added" :method "get" :id "addform"
 				       (:input :type "hidden" :name "login" :value login)
 				       (:input :type "hidden" :name "group" :value name)	
-				       (:input :type "text" :class "form-control" :name "escopo" :placeholder "Enter Text Here...")
+				       (:input :type "text" :class "form-control" :name "escopo" :placeholder "Digite sua mensagem...")
 				       (:span :class "input-group-btn"
-					      (:button :class "btn btn-info" :type "submit" (format t "~a" "SEND")))))))
+					      (:button :class "btn btn-info" :type "submit" (format t "~a" "Enviar")))))))
 		    (:div :class "col-lg-3 col-md-3 col-sm-3"
 			  (:div :class "chat-box-online-div"
 				(:div :class "chat-box-online-head"
@@ -277,8 +277,15 @@
 					      (:div :class "chat-box-online-left"
 						    (:img :src (format nil "~a" (image (user-from-login users))) :class "img-circle")
 						    ;; (:br)
-						    (format t " ~a" users))))))))
-		    
+						    (format t " ~a" users)))))))
+			  (:div :class "chat-box-footer"
+			  (:div :class "input-group"
+				(:form :action   "/contact-added" :method "get" :id "addform"
+				       (:input :type "hidden" :name "login" :value login)
+				       (:input :type "hidden" :name "group" :value name)	
+				       (:input :type "text" :class "form-control" :name "novo" :placeholder "Novo Contato...")
+				       (:span :class "input-group-btn"
+					      (:button :class "btn btn-info" :type "submit" (format t "~a" "Adicionar")))))))
 		    
 		    (:div :class "col-lg-3 col-md-3 col-sm-3"
 			  (:div :class "chat-box-new-div"
@@ -288,7 +295,16 @@
 				     (dolist (groups (group-list (user-from-login login)))
 				       (htm
 					(:div :class "panel-body chat-box-new"
-					      (:a :href (format nil "/show-group?name=~a&login=~a" groups login) (format t "~a" groups))))))))))))
+					      (:a :href (format nil "/show-group?name=~a&login=~a" groups login) (format t "~a" groups)))))))
+			    (:div :class "chat-box-footer"
+			  (:div :class "input-group"
+				(:form :action   "/group-added" :method "get" :id "addform"
+				       (:input :type "hidden" :name "login" :value login)
+				       ;(:input :type "hidden" :name "group" :value name)	
+				       (:input :type "text" :class "form-control" :name "novo" :placeholder "Novo Grupo...")
+				       (:span :class "input-group-btn"
+					      (:button :class "btn btn-info" :type "submit" (format t "~a" "Criar")))))))))))
+		    
 					
 		
 				       
@@ -332,6 +348,18 @@
   ;;print login))
   (add-mensagem escopo login group)
   (redirect (format nil "/show-group?name=~a&login=~a" group login))) ; back to the front page
+
+(define-easy-handler (contact-added :uri "/contact-added") (login group novo)
+  (unless (or (null novo) (zerop (length novo))(member novo (user-list (group-from-name group))) ; In case JavaScript is turned off.
+   (print login)))
+  (add-user-to-group novo group)
+  (redirect (format nil "/show-group?name=~a&login=~a" group login))) ; back to the front page
+
+(define-easy-handler (group-added :uri "/group-added") (login novo)
+  ;;(unless (or (null novo) (zerop (length novo))(member novo (user-list (group-from-name group))) ; In case JavaScript is turned off.
+  ;; (print login)))
+  (add-group login novo)
+  (redirect (format nil "/show-group?name=~a&login=~a" novo login))) ; back to the front page
 
 
 (publish-static-content)

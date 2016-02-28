@@ -68,8 +68,8 @@ overflow:auto;
 }
 
 .chat-box-name-left {
-    margin-top: 10px;
-    margin-left: 10px;
+    margin-top:5px;
+    margin-left: 0px;
     text-align:left;
     color:#049E64;
 }
@@ -114,6 +114,7 @@ overflow:auto;
 .chat-box-footer {
     background-color: #D8D8D8;
 padding: 10px;
+	
 }
 /*======================================
     CHAT BOX ONLINE STYLES
