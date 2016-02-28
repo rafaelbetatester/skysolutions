@@ -183,9 +183,9 @@
                `(:script :type "text/javascript"
                          (str ,script))))
            (:body
-	    (:script :src "/bootstrap.js")
 	    (:script :src "/jquery-1.11.1.js")
-            (:div :id "header" ; Retro games header
+            (:script :src "/bootstrap.js")
+	    (:div :id "header" ; Retro games header
                   (:img :style "float:right" 
 		   :src "/logo.png"
 		   :alt "Lisp Logo"
@@ -202,17 +202,14 @@
     (:html :lang "en"
            (:head
             (:meta :charset "utf-8")
-	    (:meta :name "viewport" :content "width=device-width, initial-scale=1, maximum-scale=1")
+	   ;; (:meta :name "viewport" :content "width=device-width, initial-scale=1, maximum-scale=1")
             (:title ,title)
-            (:link :type "text/css"
-                   :rel "stylesheet"
-                   :href "/bootstrap.css")
-            (:link :type "text/css"
-                   :rel "stylesheet"
-                   :href "/style.css")
-            (:link :type "text/css"
-                   :rel "stylesheet"
-                   :href "/font-awesome.css")
+           ;; (:link :type "text/css"
+                  ; :rel "stylesheet"
+                  ; :href "/style.css")
+            ;;(:link :type "text/css"
+              ;;     :rel "stylesheet"
+                ;;   :href "/font-awesome.css")
             ,(when script
                `(:script :type "text/javascript"
                          (str ,script))))
@@ -303,9 +300,8 @@
       $(\"#scroll-table\").load(\"/refresh?name=~a&login=~a\");
       setInterval(function(){
         $(\"#scroll-table\").load(\"/refresh?name=~a&login=~a\");
-      }, 500);
+      }, 1000);
     });"name login name login))
-			  
 			  (:ol :id "scroll-table" 
 					(dolist (mensagens (reverse *mensagem-database*))
 					  (if (equal name (destinatario mensagens))
@@ -328,7 +324,15 @@
 			  (:div :class "chat-box-online-div"
 				(:div :class "chat-box-online-head"
 				      (format t "Membros do Projeto (~a)" (length (user-list (group-from-name name)))))
-				(:ol :id "scroll-table"
+				
+				(:script (format t " $(document).ready(function(){
+         $(\"#scroll-table-2\").load(\"/refresh-group?name=~a&login=~a\");
+      setInterval(function(){
+        $(\"#scroll-table-2\").load(\"/refresh-group?name=~a&login=~a\");
+      }, 3000);
+    });"name login name login))
+	
+				(:ol :id "scroll-table-2"
 				     (dolist (users (user-list (group-from-name name)))
 				       (htm
 					(:div :class "panel-body chat-box-online"
@@ -349,7 +353,15 @@
 			  (:div :class "chat-box-new-div"
 				(:div :class "chat-box-new-head"
 				      (format t "Projetos (~a)" (length (group-list (user-from-login login)))))
-				(:ol :id "scroll-table"
+						
+				(:script (format t " $(document).ready(function(){
+         $(\"#scroll-table-3\").load(\"/refresh-group-list?name=~a&login=~a\");
+      setInterval(function(){
+        $(\"#scroll-table-3\").load(\"/refresh-group-list?name=~a&login=~a\");
+      }, 3000);
+    });"name login name login))
+	
+				(:ol :id "scroll-table-3"
 				     (dolist (groups (group-list (user-from-login login)))
 				       (htm
 					(:div :class "panel-body chat-box-new"
@@ -368,7 +380,7 @@
 
 (define-easy-handler (refresh :uri "/refresh") (name login)
   (standard-refresh (:title "SkyApp") (:ol :id "scroll-table" 
-       (dolist (mensagens (reverse *mensagem-database*))
+					   (dolist (mensagens (reverse *mensagem-database*))
 	 (if (equal name (destinatario mensagens))
 	     (htm
 	      ;;(:div :class "panel-body chat-box-main"
@@ -377,7 +389,23 @@
 		    ;; (:img :src "./chat-box/assets/img/user.png" :alt "bootstrap Chat box user image" :class "img-circle")
 		    (format t "~a: ~a" (remetente mensagens) (escopo mensagens)
 			    (open-time (tempo mensagens))))))))))
-				       
+				
+(define-easy-handler (refresh-group :uri "/refresh-group") (name login)
+  (standard-refresh (:title "SkyApp") (:ol :id "scroll-table-2" 
+					   (dolist (users (user-list (group-from-name name)))
+					     (htm
+					      (:div :class "panel-body chat-box-online"
+						    (:div :class "chat-box-online-left"
+		 (:img :src (format nil "~a" (image (user-from-login users))) :class "img-circle")
+		 ;; (:br)
+		 (format t " ~a" users))))))))
+(define-easy-handler (refresh-group-list :uri "/refresh-group-list") (name login)
+  (standard-refresh (:title "SkyApp") 	(:ol :id "scroll-table-3"
+				     (dolist (groups (group-list (user-from-login login)))
+				       (htm
+					(:div :class "panel-body chat-box-new"
+					      (:a :href (format nil "/show-group?name=~a&login=~a" groups login) (format t "~a" groups))))))))
+			
 ;;     (
 ;; (:div :id "chart" ; Used for CSS styling of the links.
     ;; 	(:ol

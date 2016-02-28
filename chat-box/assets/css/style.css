@@ -55,6 +55,22 @@ text-align: center;
 height: 500px;     
 overflow:auto;
   width: 100%;
+margin-left:-35px;
+}	
+#scroll-table-2
+{
+height: 500px;     
+overflow:auto;
+  width: 100%;
+margin-left:-40px;
+}	
+#scroll-table-3
+{
+height: 500px;     
+overflow:auto;
+  width: 100%;
+margin-left:-40px;
+
 }	
 .chat-box-left:after {
     top: 100%;
