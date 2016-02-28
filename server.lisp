@@ -177,6 +177,37 @@
 		   :alt "Lisp Logo"
 		   :class "logo"))
             ,@body))))
+(defmacro standard-refresh ((&key title script) &body body)
+  "All pages on the Retro Games site will use the following macro; 
+   less to type and a uniform look of the pages (defines the header
+   and the stylesheet).
+   The macro also accepts an optional script argument. When present, the
+   script form is expected to expand into valid JavaScript."
+  `(with-html-output-to-string
+    (*standard-output* nil :prologue t :indent t)
+    (:html :lang "en"
+           (:head
+            (:meta :charset "utf-8")
+	    (:meta :name "viewport" :content "width=device-width, initial-scale=1, maximum-scale=1")
+            (:title ,title)
+            (:link :type "text/css"
+                   :rel "stylesheet"
+                   :href "/bootstrap.css")
+            (:link :type "text/css"
+                   :rel "stylesheet"
+                   :href "/style.css")
+            (:link :type "text/css"
+                   :rel "stylesheet"
+                   :href "/font-awesome.css")
+            ,(when script
+               `(:script :type "text/javascript"
+                         (str ,script))))
+           (:body
+	    (:script :src "/bootstrap.js")
+	    (:script :src "/jquery-1.11.1.js")
+            (:div :id "header" ; Retro games header
+                 )
+            ,@body))))
 
 (defmacro standard-main-page ((&key title script) &body body)
   "All pages on the Retro Games site will use the following macro; 
@@ -206,7 +237,7 @@
 
  (define-easy-handler (loggin :uri "/loggin") ()
   (standard-page (:title "Login")
-    (:h1 "Entre com Login e Senha!")
+		 (:h1 "Entre com Login e Senha!")
     (:form :action "/login-inserted" :method "get" :id "addform"
 	   (:p "Login" (:br)
 	       (:input :type "text" :name "login" :class "txt"))
@@ -254,9 +285,14 @@
 				      (:ul :class "dropdown-menu" :role "menu"
 					   (:li (:a :href "#" (:span :class "fa fa-map-marker") (format t "~a" "&nbsp;Invisible")))
 					   (:li (:a :href "#" (:span :class "fa fa-comments-o") (format t "~a" "&nbsp;Online"))))))
-					  
-		         ;;(:div :class "panel-body chat-box-main"
-				   (:ol :id "scroll-table"
+			  (:script (format t " $(document).ready(function(){
+      $(\"#scroll-table\").load(\"/refresh?name=~a&login=~a\");
+      setInterval(function(){
+        $(\"#scroll-table\").load(\"/refresh?name=~a&login=~a\");
+      }, 500);
+    });"name login name login))
+			  
+			  (:ol :id "scroll-table" 
 					(dolist (mensagens (reverse *mensagem-database*))
 					  (if (equal name (destinatario mensagens))
 					      (htm
@@ -315,7 +351,18 @@
 		    
 					
 		
-				       
+
+(define-easy-handler (refresh :uri "/refresh") (name login)
+  (standard-refresh (:title "SkyApp") (:ol :id "scroll-table" 
+       (dolist (mensagens (reverse *mensagem-database*))
+	 (if (equal name (destinatario mensagens))
+	     (htm
+	      ;;(:div :class "panel-body chat-box-main"
+	      ;;(string (escopo mensagens)))
+	      (:div :class "chat-box-name-left"
+		    ;; (:img :src "./chat-box/assets/img/user.png" :alt "bootstrap Chat box user image" :class "img-circle")
+		    (format t "~a: ~a" (remetente mensagens) (escopo mensagens)
+			    (open-time (tempo mensagens))))))))))
 				       
 ;;     (
 ;; (:div :id "chart" ; Used for CSS styling of the links.
