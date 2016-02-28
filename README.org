@@ -1,0 +1,20 @@
+* DONE Criar Server, Handlers Basicos e DataBase
+** DONE Hunchentoot Server
+** DONE Definir Classes Iniciais - User, Mensagens, Grupos
+** DONE Prototipo de DataBase
+** DONE Handler Login, adicionar grupos, verificar login
+** DONE MongoDataBase
+* DONE Criar Interface Web
+** DONE Baixar Static-Content e dar Publish
+** DONE Usar o Static-Content nas paginas-padrao
+* TODO Adicionar mais opcoes dinamicas Website ->Jquery
+** TODO Refresh Parcial Ajax - Server Lisp
+* TODO Aplicacao Desktop
+** TODO Criar API
+*** DONE Server e Handlers necessarios
+*** TODO Melhorar o formato dos dados ->JSON
+*** DONE Usar MongoDB para Database
+** TODO Criar Interface Grafica
+** DONE Cliente Lisp para
+
+
